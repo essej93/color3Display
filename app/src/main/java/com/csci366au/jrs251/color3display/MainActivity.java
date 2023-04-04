@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                         setRGBLeft();
                         return;
                     case R.id.leftYCbCrRadioButton:
+                        setYCbCr();
                         Toast.makeText(getApplicationContext(), "leftYCbRadio", Toast.LENGTH_LONG).show();
                         return;
                     case R.id.leftrightRadioButton:
@@ -146,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
                 //b *= 0.5;
                 //g = Math.min(g, 255);
                 //b = Math.min(b, 255);
+                //int newColour = Color.argb(a,r,g,b) + r;
+
+
                 int newColour = Color.argb(a,r,g,b);
                 rbitmapR.setPixel(x,y,newColour);
 
@@ -279,5 +283,41 @@ public class MainActivity extends AppCompatActivity {
 
     private void setLeftYCbCr() {
 
+
+        if(bitmapY != null){
+            imageLeft.setImageBitmap(bitmapY);
+            return;
+        }
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
+        bitmapY = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+        int r,g,b, pixel, Y, Cb, Cr;
+        int width, height;
+        width = bitmap.getWidth();
+        height = bitmap.getHeight();
+
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                pixel = bitmapY.getPixel(x,y);
+                r = Color.red(pixel);
+                g = Color.green(pixel);
+                b = Color.blue(pixel);
+
+                //Y = (int) (0.299 * r + 0.587 * g + 0.114 * b);
+                //Cb =  (int) (128-0.169 *   r-0.331   * g + 0.500 * b);
+                //Cr =  (int) (128+0.500 *   r - 0.419 * g - 0.081 * b);
+
+                Y = (66 * r + 129 * g + 25 * b + 128) >> 8 + 16;
+                //u = (-38 * r - 74 * g + 112 * b + 128) >> 8 + 128;
+                //v = (112 * r - 94 * g - 18 * b + 128) >> 8 + 128;
+
+                int newPixel = (Y<<24) | (g<<16) | (b<<8);
+
+                bitmapY.setPixel(x,y,newPixel);
+            }
+        }
+
+        imageLeft.setImageBitmap(bitmapY);
     }
 }
