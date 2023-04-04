@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.YuvImage;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Bundle;
@@ -20,7 +21,10 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageLeft, imageMiddle, imageRight;
     RadioButton leftRGBRadio, leftYCBRadio, leftrightRadio, anaglyphRadio;
     RadioGroup radioGroup;
-    private Object BitmapDrawable;
+    Bitmap rbitmapR, rbitmapG, rbitmapB;
+
+    YuvImage plantYCbCr;
+    Bitmap bitmapY, bitmapCb, bitmapCr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,16 +103,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setLeftRGB(){
+
+        // checks if bitmap has already been generated so it doesnt remake it
+        // if it has already been created just sets the image view to that bitmap
+        if(rbitmapR != null){
+            imageLeft.setImageBitmap(rbitmapR);
+            return;
+        }
         // decodes image to bitmap
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
         int width = bMap.getWidth();
         int height = bMap.getHeight();
         int[] pixels = new int[width*height];
         bMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        Bitmap rbitmap = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        rbitmapR = bMap.copy(Bitmap.Config.ARGB_8888, true);
 
         //int r,g,b;
-        for(int x = 0; x < rbitmap.getWidth(); x++){
+        for(int x = 0; x < rbitmapR.getWidth(); x++){
 
             /*
             r = (pixels[x]>>16) & 0xFF;
@@ -119,23 +130,24 @@ public class MainActivity extends AppCompatActivity {
             pixels[x] = Color.rgb(r,g,b);*/
 
 
-            for(int y = 0; y < rbitmap.getHeight(); y++){
+            for(int y = 0; y < rbitmapR.getHeight(); y++){
 
                 //rbitmap.setPixel(x,y, rbitmap.getPixel(x,y) & 0xFFFF0000);
 
-                int pixel = rbitmap.getPixel(x, y);
+                int pixel = rbitmapR.getPixel(x, y);
 
                 int a = Color.alpha(pixel);
                 int r = 255;
                 int g = Color.green(pixel);
                 int b = Color.blue(pixel);
 
-                g *= 0.5;
-                b *= 0.5;
-                g = Math.min(g, 255);
-                b = Math.min(b, 255);
+
+                //g *= 0.5;
+                //b *= 0.5;
+                //g = Math.min(g, 255);
+                //b = Math.min(b, 255);
                 int newColour = Color.argb(a,r,g,b);
-                rbitmap.setPixel(x,y,newColour);
+                rbitmapR.setPixel(x,y,newColour);
 
             }
         }
@@ -145,23 +157,31 @@ public class MainActivity extends AppCompatActivity {
 
         //Bitmap scaledBitmap = Bitmap.createScaledBitmap(rbitmap, width, height, false);
 
-        imageLeft.setImageBitmap(rbitmap);
+        imageLeft.setImageBitmap(rbitmapR);
         //imageMiddle.setImageBitmap(scaledBitmap);
         //imageRight.setImageBitmap(scaledBitmap);
 
     }
 
     private void setMiddleRGB(){
+
+        // checks if bitmap has already been generated so it doesnt remake it
+        // if it has already been created just sets the image view to that bitmap
+        if(rbitmapG != null){
+            imageMiddle.setImageBitmap(rbitmapG);
+            return;
+        }
+
         // decodes image to bitmap
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
         int width = bMap.getWidth();
         int height = bMap.getHeight();
         int[] pixels = new int[width*height];
         bMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        Bitmap rbitmap = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        rbitmapG = bMap.copy(Bitmap.Config.ARGB_8888, true);
 
         //int r,g,b;
-        for(int x = 0; x < rbitmap.getWidth(); x++){
+        for(int x = 0; x < rbitmapG.getWidth(); x++){
 
             /*
             r = (pixels[x]>>16) & 0xFF;
@@ -172,11 +192,11 @@ public class MainActivity extends AppCompatActivity {
             pixels[x] = Color.rgb(r,g,b);*/
 
 
-            for(int y = 0; y < rbitmap.getHeight(); y++){
+            for(int y = 0; y < rbitmapG.getHeight(); y++){
 
                 //rbitmap.setPixel(x,y, rbitmap.getPixel(x,y) & 0xFFFF0000);
 
-                int pixel = rbitmap.getPixel(x, y);
+                int pixel = rbitmapG.getPixel(x, y);
 
                 int a = Color.alpha(pixel);
                 int r = Color.red(pixel);
@@ -184,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 int b = Color.blue(pixel);
 
                 int newColour = Color.argb(a,r,g,b);
-                rbitmap.setPixel(x,y,newColour);
+                rbitmapG.setPixel(x,y,newColour);
 
             }
         }
@@ -194,21 +214,29 @@ public class MainActivity extends AppCompatActivity {
 
         //Bitmap scaledBitmap = Bitmap.createScaledBitmap(rbitmap, width, height, false);
 
-        imageMiddle.setImageBitmap(rbitmap);
+        imageMiddle.setImageBitmap(rbitmapG);
 
     }
 
     private void setRightRGB() {
+
+        // checks if bitmap has already been generated so it doesnt remake it
+        // if it has already been created just sets the image view to that bitmap
+        if(rbitmapB != null){
+            imageRight.setImageBitmap(rbitmapB);
+            return;
+        }
+
         // decodes image to bitmap
         Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
         int width = bMap.getWidth();
         int height = bMap.getHeight();
         int[] pixels = new int[width*height];
         bMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        Bitmap rbitmap = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        rbitmapB = bMap.copy(Bitmap.Config.ARGB_8888, true);
 
         //int r,g,b;
-        for(int x = 0; x < rbitmap.getWidth(); x++){
+        for(int x = 0; x < rbitmapB.getWidth(); x++){
 
             /*
             r = (pixels[x]>>16) & 0xFF;
@@ -219,11 +247,11 @@ public class MainActivity extends AppCompatActivity {
             pixels[x] = Color.rgb(r,g,b);*/
 
 
-            for(int y = 0; y < rbitmap.getHeight(); y++){
+            for(int y = 0; y < rbitmapB.getHeight(); y++){
 
                 //rbitmap.setPixel(x,y, rbitmap.getPixel(x,y) & 0xFFFF0000);
 
-                int pixel = rbitmap.getPixel(x, y);
+                int pixel = rbitmapB.getPixel(x, y);
 
                 int a = Color.alpha(pixel);
                 int r = Color.red(pixel);
@@ -231,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 int b = 255;
 
                 int newColour = Color.argb(a,r,g,b);
-                rbitmap.setPixel(x,y,newColour);
+                rbitmapB.setPixel(x,y,newColour);
 
             }
         }
@@ -241,7 +269,18 @@ public class MainActivity extends AppCompatActivity {
 
         //Bitmap scaledBitmap = Bitmap.createScaledBitmap(rbitmap, width, height, false);
 
-        imageRight.setImageBitmap(rbitmap);
+        imageRight.setImageBitmap(rbitmapB);
+
+    }
+
+    private void setYCbCr(){
+        setLeftYCbCr();
+    }
+
+    private void setLeftYCbCr() {
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
+        //plantYCbCr = new YuvImage(convertToYCbrCr(bitmap))
 
     }
 }
