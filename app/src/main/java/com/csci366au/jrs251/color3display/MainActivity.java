@@ -279,8 +279,5 @@ public class MainActivity extends AppCompatActivity {
 
     private void setLeftYCbCr() {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        //plantYCbCr = new YuvImage(convertToYCbrCr(bitmap))
-
     }
 }
