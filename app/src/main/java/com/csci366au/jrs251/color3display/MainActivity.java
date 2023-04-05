@@ -137,10 +137,14 @@ public class MainActivity extends AppCompatActivity {
 
                 int pixel = rbitmapR.getPixel(x, y);
 
+                // Instead of setting the R value to 255, set the other 2 values to 0
                 int a = Color.alpha(pixel);
-                int r = 255;
+                int r = Color.red(pixel);
                 int g = Color.green(pixel);
                 int b = Color.blue(pixel);
+
+                g = 0;
+                b = 0;
 
 
                 //g *= 0.5;
@@ -257,6 +261,8 @@ public class MainActivity extends AppCompatActivity {
 
                 int pixel = rbitmapB.getPixel(x, y);
 
+
+
                 int a = Color.alpha(pixel);
                 int r = Color.red(pixel);
                 int g = Color.green(pixel);
@@ -304,6 +310,10 @@ public class MainActivity extends AppCompatActivity {
                 g = Color.green(pixel);
                 b = Color.blue(pixel);
 
+                // firt convert values from RGB to YCbCr
+                // then to create the grey scale of Y, set both other Cb Cr values to same as Y
+                // then use color.argb(y,Cb,Cr)
+                // USE FORMULA from slides to ensure it works correctly
                 Y = (int) (0.299 * r + 0.587 * g + 0.114 * b);
                 Cb =  (int) (128-0.169 *   r-0.331   * g + 0.500 * b);
                 Cr =  (int) (128+0.500 *   r - 0.419 * g - 0.081 * b);
