@@ -46,14 +46,13 @@
     </RadioGroup>
 
 
-
     <LinearLayout
         android:id="@+id/imageLinearLayout"
         android:layout_width="match_parent"
-        android:paddingTop="2dp"
         android:layout_height="340dp"
         android:layout_below="@+id/imageRadioGroup"
         android:orientation="horizontal"
+        android:paddingTop="2dp"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
