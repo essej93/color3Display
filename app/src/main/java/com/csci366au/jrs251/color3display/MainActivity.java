@@ -10,7 +10,10 @@ import android.graphics.YuvImage;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -21,20 +24,24 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageLeft, imageMiddle, imageRight;
     RadioButton leftRGBRadio, leftYCBRadio, leftrightRadio, anaglyphRadio;
     RadioGroup radioGroup;
-    Bitmap rbitmapR, rbitmapG, rbitmapB;
-
-    YuvImage plantYCbCr;
+    LinearLayout linearImageView;
+    Bitmap bitmapLeftImg, bitmapRightImg, scaledImgLeft, scaledImgRight;
+    Bitmap bitmapR, bitmapG, bitmapB;
     Bitmap bitmapY, bitmapCb, bitmapCr;
+    Bitmap anaglyphBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        leftRGBRadio = findViewById(R.id.leftRGBRadioButton);
-        leftYCBRadio = findViewById(R.id.leftYCbCrRadioButton);
-        leftrightRadio = findViewById(R.id.leftrightRadioButton);
-        anaglyphRadio = findViewById(R.id.anaglyphRadioButton);
+        //leftRGBRadio = findViewById(R.id.leftRGBRadioButton);
+        //leftYCBRadio = findViewById(R.id.leftYCbCrRadioButton);
+        //leftrightRadio = findViewById(R.id.leftrightRadioButton);
+        //anaglyphRadio = findViewById(R.id.anaglyphRadioButton);
+
+
+        linearImageView = findViewById(R.id.imageLinearLayout);
 
 
         imageLeft = findViewById(R.id.imageViewLeft);
@@ -43,22 +50,26 @@ public class MainActivity extends AppCompatActivity {
 
         radioGroup = findViewById(R.id.imageRadioGroup);
 
+        scaleImage(); // calls scale image to scale down left and right images on create
+
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch(checkedId){
                     case R.id.leftRGBRadioButton:
                         Toast.makeText(getApplicationContext(), "leftRGBRadio", Toast.LENGTH_LONG).show();
-                        setRGBLeft();
+                        setRGB();
                         return;
                     case R.id.leftYCbCrRadioButton:
                         setYCbCr();
                         Toast.makeText(getApplicationContext(), "leftYCbRadio", Toast.LENGTH_LONG).show();
                         return;
                     case R.id.leftrightRadioButton:
+                        setLeftRight();
                         Toast.makeText(getApplicationContext(), "leftrightRadio", Toast.LENGTH_LONG).show();
                         return;
                     case R.id.anaglyphRadioButton:
+                        setAnaglyph();
                         Toast.makeText(getApplicationContext(), "anaglyphRadio", Toast.LENGTH_LONG).show();
                         return;
                 }
@@ -66,39 +77,134 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setRGBLeft(){
 
-        /*
+    // scale image method to scale down both left and right images when the app starts and stores them in
+    // bitmaps for later use
+    private void scaleImage(){
+        // decodes both images
+        bitmapLeftImg = BitmapFactory.decodeResource(getResources(), R.drawable.left);
+        bitmapRightImg = BitmapFactory.decodeResource(getResources(), R.drawable.right);
 
-        Bitmap plantBmp = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        int width = plantBmp.getWidth();
-        int height = plantBmp.getHeight();
-        int maxWidth = width/2;
-        int maxHeight = height/2;
-        float ratio = Math.min(
-                (float) maxWidth / plantBmp.getWidth(),
-                (float) maxHeight / plantBmp.getHeight()
-        );
-        width = Math.round((float) ratio * plantBmp.getWidth());
-        height = Math.round((float) ratio * plantBmp.getHeight());
-        Bitmap scaledBmp = Bitmap.createScaledBitmap(plantBmp, width, height, true);
-        imageLeft.setImageBitmap(scaledBmp);
-        imageMiddle.setImageBitmap(scaledBmp);
-        imageRight.setImageBitmap(scaledBmp);*/
+        // divides pixel width/height by 2
+        int width, height;
+        width = bitmapLeftImg.getWidth()/2;
+        height = bitmapLeftImg.getHeight()/2;
 
+        // creates new scaled down bitmap and stores it for later use
+        scaledImgLeft = Bitmap.createScaledBitmap(bitmapLeftImg, width, height, true);
 
-        //imageLeft.setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
-        //imageLeft.setImageResource(R.drawable.left);
+        width = bitmapRightImg.getWidth()/2;
+        height = bitmapRightImg.getHeight()/2;
 
-        //imageMiddle.setColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY);
-        //imageMiddle.setImageResource(R.drawable.left);
+        scaledImgRight = Bitmap.createScaledBitmap(bitmapRightImg, width, height, true);
 
-        //imageRight.setColorFilter(Color.BLUE, PorterDuff.Mode.MULTIPLY);
-        //imageRight.setImageResource(R.drawable.left);
+    }
+
+    // method to set left,middle and right image views to respective RGB values
+    private void setRGB(){
+
+        // makes image views visible and changes scale type to fit correctly
+        imageMiddle.setVisibility(View.VISIBLE);
+        imageRight.setVisibility(View.VISIBLE);
+        imageLeft.setVisibility(View.VISIBLE);
+        imageLeft.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageMiddle.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageRight.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         setLeftRGB();
         setMiddleRGB();
         setRightRGB();
+
+    }
+
+
+    private void setYCbCr(){
+
+        // makes image views visible and changes scale type to fit correctly
+        imageMiddle.setVisibility(View.VISIBLE);
+        imageRight.setVisibility(View.VISIBLE);
+        imageLeft.setVisibility(View.VISIBLE);
+        imageLeft.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageMiddle.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageRight.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        setLeftYCbCr();
+        setMiddleYCbCr();
+        setRightYCbCr();
+    }
+
+
+    private void setLeftRight(){
+        // hides middle image view and sets left and right images
+        imageMiddle.setVisibility(View.GONE);
+        imageRight.setVisibility(View.VISIBLE);
+        imageLeft.setVisibility(View.VISIBLE);
+        imageLeft.setImageBitmap(scaledImgLeft);
+        imageRight.setImageBitmap(scaledImgRight);
+
+    }
+
+    private void setAnaglyph(){
+
+
+        // makes image views visible and changes scale type to fit correctly
+        imageMiddle.setVisibility(View.VISIBLE);
+        imageRight.setVisibility(View.GONE);
+        imageLeft.setVisibility(View.GONE);
+        imageMiddle.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
+        // checks if anaglyphBitmap already exists
+        if(anaglyphBitmap != null){
+            imageMiddle.setImageBitmap(anaglyphBitmap);
+        }
+
+
+        int leftWidth = scaledImgLeft.getWidth();
+        int leftHeight = scaledImgLeft.getHeight();
+        int rightWidth = scaledImgLeft.getWidth();
+        int rightHeight = scaledImgLeft.getHeight();
+
+        // creates arrays to hold pixel values
+        int[] leftPixels = new int[leftWidth*leftHeight];
+        int[] rightPixels = new int[rightWidth*rightHeight];
+        int[] anaglyphPixels = new int[leftWidth*leftHeight];
+
+        // loads pixel values into arrays from both images
+        scaledImgLeft.getPixels(leftPixels, 0, leftWidth, 0, 0, leftWidth, leftHeight);
+        scaledImgRight.getPixels(rightPixels, 0, rightWidth, 0, 0, rightWidth, rightHeight);
+
+        // for loop to access both left and right pixel values
+        // calculates their luminance value and uses those to then generate a new pixel
+        // for the anaglyph image accordingly
+        int r, g, b, pixel;
+        for(int i = 0; i < leftPixels.length; i++){
+            // gets pixel values for left image calculates luminance and holds the new value
+            pixel = leftPixels[i];
+            r = Color.red(pixel);
+            g = Color.green(pixel);
+            b = Color.blue(pixel);
+
+            // uses luminance formula to calculate pixel for the left image
+            int newLeftPixel = (int) (r * 0.2126 + g * 0.7152 + b * 0.0722); //int newLeftPixel = (int) (r * 0.299 + g * 0.578 + b * 0.114); other formula can be used but not as accurate
+
+            // gets pixel values for right image calculates luminance and holds the new value
+            pixel = rightPixels[i];
+            r = Color.red(pixel);
+            g = Color.green(pixel);
+            b = Color.blue(pixel);
+
+            // uses luminance formula to calculate pixel for the right image
+            int newRightPixel = (int) (r * 0.2126 + g * 0.7152 + b * 0.0722); // int newRightPixel = (int) (r * 0.299 + g * 0.578 + b * 0.114); other formula can be used but not as accurate
+
+            // sets the new pixel value for the anaglyph using left and right generated pixels. R and B using right image pixel and G using left image pixel
+            anaglyphPixels[i] = Color.rgb(newRightPixel, newLeftPixel, newRightPixel);
+        }
+
+        anaglyphBitmap = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+
+        anaglyphBitmap.setPixels(anaglyphPixels, 0, leftWidth, 0, 0, leftWidth, leftHeight);
+        imageMiddle.setImageBitmap(anaglyphBitmap);
+
     }
 
 
@@ -107,67 +213,41 @@ public class MainActivity extends AppCompatActivity {
 
         // checks if bitmap has already been generated so it doesnt remake it
         // if it has already been created just sets the image view to that bitmap
-        if(rbitmapR != null){
-            imageLeft.setImageBitmap(rbitmapR);
+        if(bitmapR != null){
+            imageLeft.setImageBitmap(bitmapR);
             return;
         }
-        // decodes image to bitmap
-        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        int width = bMap.getWidth();
-        int height = bMap.getHeight();
+
+        // copies scaled img to bitmapR
+        bitmapR = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+        int width = scaledImgLeft.getWidth();
+        int height = scaledImgLeft.getHeight();
+
+        // creates array to hold pixel values uses getPixels to copy values to the array.
         int[] pixels = new int[width*height];
-        bMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        rbitmapR = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        scaledImgLeft.getPixels(pixels, 0, width, 0, 0, width, height);
 
-        //int r,g,b;
-        for(int x = 0; x < rbitmapR.getWidth(); x++){
+        // for loop to iterate through each pixel and change rgb values accordingly
+        int pixel, a,r,g,b;
+        for(int i = 0; i < pixels.length; i++){
+            pixel = pixels[i];
+            a = Color.alpha(pixel);
+            r = Color.red(pixel);
+            g = 0;
+            b = 0;
 
-            /*
-            r = (pixels[x]>>16) & 0xFF;
-            g = (pixels[x]>>8) &0xFF;
-            b = pixels[x] & 0xFF;
+            // sets the new rgb values for the current pixel
+            pixels[i] = Color.argb(a,r,g,b);
 
-            r &= 0xFFFF0000;
-            pixels[x] = Color.rgb(r,g,b);*/
-
-
-            for(int y = 0; y < rbitmapR.getHeight(); y++){
-
-                //rbitmap.setPixel(x,y, rbitmap.getPixel(x,y) & 0xFFFF0000);
-
-                int pixel = rbitmapR.getPixel(x, y);
-
-                // Instead of setting the R value to 255, set the other 2 values to 0
-                int a = Color.alpha(pixel);
-                int r = Color.red(pixel);
-                int g = Color.green(pixel);
-                int b = Color.blue(pixel);
-
-                g = 0;
-                b = 0;
-
-
-                //g *= 0.5;
-                //b *= 0.5;
-                //g = Math.min(g, 255);
-                //b = Math.min(b, 255);
-                //int newColour = Color.argb(a,r,g,b) + r;
-
-
-                int newColour = Color.argb(a,r,g,b);
-                rbitmapR.setPixel(x,y,newColour);
-
-            }
         }
-        //rbitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+
+        // sets the new pixels to the bitmap
+        bitmapR.setPixels(pixels, 0, width, 0, 0, width, height);
 
 
+        // sets the image view to the bitmap
+        imageLeft.setImageBitmap(bitmapR);
 
-        //Bitmap scaledBitmap = Bitmap.createScaledBitmap(rbitmap, width, height, false);
-
-        imageLeft.setImageBitmap(rbitmapR);
-        //imageMiddle.setImageBitmap(scaledBitmap);
-        //imageRight.setImageBitmap(scaledBitmap);
 
     }
 
@@ -175,54 +255,40 @@ public class MainActivity extends AppCompatActivity {
 
         // checks if bitmap has already been generated so it doesnt remake it
         // if it has already been created just sets the image view to that bitmap
-        if(rbitmapG != null){
-            imageMiddle.setImageBitmap(rbitmapG);
+        if(bitmapG != null){
+            imageMiddle.setImageBitmap(bitmapG);
             return;
         }
 
-        // decodes image to bitmap
-        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        int width = bMap.getWidth();
-        int height = bMap.getHeight();
+        // copies scaled img to bitmapR
+        bitmapG = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+        int width = scaledImgLeft.getWidth();
+        int height = scaledImgLeft.getHeight();
+
+        // creates array to hold pixel values uses getPixels to copy values to the array.
         int[] pixels = new int[width*height];
-        bMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        rbitmapG = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        scaledImgLeft.getPixels(pixels, 0, width, 0, 0, width, height);
 
-        //int r,g,b;
-        for(int x = 0; x < rbitmapG.getWidth(); x++){
+        // for loop to iterate through each pixel and change rgb values accordingly
+        int pixel, a,r,g,b;
+        for(int i = 0; i < pixels.length; i++){
+            pixel = pixels[i];
+            a = Color.alpha(pixel);
+            r = 0;
+            g = Color.green(pixel);
+            b = 0;
 
-            /*
-            r = (pixels[x]>>16) & 0xFF;
-            g = (pixels[x]>>8) &0xFF;
-            b = pixels[x] & 0xFF;
+            // sets the new rgb values for the current pixel
+            pixels[i] = Color.argb(a,r,g,b);
 
-            r &= 0xFFFF0000;
-            pixels[x] = Color.rgb(r,g,b);*/
-
-
-            for(int y = 0; y < rbitmapG.getHeight(); y++){
-
-                //rbitmap.setPixel(x,y, rbitmap.getPixel(x,y) & 0xFFFF0000);
-
-                int pixel = rbitmapG.getPixel(x, y);
-
-                int a = Color.alpha(pixel);
-                int r = Color.red(pixel);
-                int g = 255;
-                int b = Color.blue(pixel);
-
-                int newColour = Color.argb(a,r,g,b);
-                rbitmapG.setPixel(x,y,newColour);
-
-            }
         }
-        //rbitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+
+        // sets the new pixels to the bitmap
+        bitmapG.setPixels(pixels, 0, width, 0, 0, width, height);
 
 
-
-        //Bitmap scaledBitmap = Bitmap.createScaledBitmap(rbitmap, width, height, false);
-
-        imageMiddle.setImageBitmap(rbitmapG);
+        // sets the image view to the bitmap
+        imageMiddle.setImageBitmap(bitmapG);
 
     }
 
@@ -230,110 +296,174 @@ public class MainActivity extends AppCompatActivity {
 
         // checks if bitmap has already been generated so it doesnt remake it
         // if it has already been created just sets the image view to that bitmap
-        if(rbitmapB != null){
-            imageRight.setImageBitmap(rbitmapB);
+        if(bitmapB != null){
+            imageRight.setImageBitmap(bitmapB);
             return;
         }
 
-        // decodes image to bitmap
-        Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        int width = bMap.getWidth();
-        int height = bMap.getHeight();
+        // copies scaled img to bitmapR
+        bitmapB = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+        int width = scaledImgLeft.getWidth();
+        int height = scaledImgLeft.getHeight();
+
+        // creates array to hold pixel values uses getPixels to copy values to the array.
         int[] pixels = new int[width*height];
-        bMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        rbitmapB = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        scaledImgLeft.getPixels(pixels, 0, width, 0, 0, width, height);
 
-        //int r,g,b;
-        for(int x = 0; x < rbitmapB.getWidth(); x++){
+        // for loop to iterate through each pixel and change rgb values accordingly
+        int pixel, a,r,g,b;
+        for(int i = 0; i < pixels.length; i++){
+            pixel = pixels[i];
+            a = Color.alpha(pixel);
+            r = 0;
+            g = 0;
+            b = Color.blue(pixel);
 
-            /*
-            r = (pixels[x]>>16) & 0xFF;
-            g = (pixels[x]>>8) &0xFF;
-            b = pixels[x] & 0xFF;
+            // sets the new rgb values for the current pixel
+            pixels[i] = Color.argb(a,r,g,b);
 
-            r &= 0xFFFF0000;
-            pixels[x] = Color.rgb(r,g,b);*/
-
-
-            for(int y = 0; y < rbitmapB.getHeight(); y++){
-
-                //rbitmap.setPixel(x,y, rbitmap.getPixel(x,y) & 0xFFFF0000);
-
-                int pixel = rbitmapB.getPixel(x, y);
-
-
-
-                int a = Color.alpha(pixel);
-                int r = Color.red(pixel);
-                int g = Color.green(pixel);
-                int b = 255;
-
-                int newColour = Color.argb(a,r,g,b);
-                rbitmapB.setPixel(x,y,newColour);
-
-            }
         }
-        //rbitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
+        // sets the new pixels to the bitmap
+        bitmapB.setPixels(pixels, 0, width, 0, 0, width, height);
 
+        // sets image view to modified bitmap
+        imageRight.setImageBitmap(bitmapB);
 
-        //Bitmap scaledBitmap = Bitmap.createScaledBitmap(rbitmap, width, height, false);
-
-        imageRight.setImageBitmap(rbitmapB);
-
-    }
-
-    private void setYCbCr(){
-        setLeftYCbCr();
     }
 
     private void setLeftYCbCr() {
 
-
+        // checks if bitmap already exists
         if(bitmapY != null){
             imageLeft.setImageBitmap(bitmapY);
             return;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.left);
-        bitmapY = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        // copies scaled img to bitmapY
+        bitmapY = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+        int width = scaledImgLeft.getWidth();
+        int height = scaledImgLeft.getHeight();
 
-        int r,g,b, pixel, Y, Cb, Cr;
-        int width, height;
-        width = bitmap.getWidth();
-        height = bitmap.getHeight();
+        // creates array to hold pixel values uses getPixels to copy values to the array.
+        int[] pixels = new int[width*height];
+        scaledImgLeft.getPixels(pixels, 0, width, 0, 0, width, height);
 
-        for(int x = 0; x < width; x++){
-            for(int y = 0; y < height; y++){
-                pixel = bitmapY.getPixel(x,y);
-                r = Color.red(pixel);
-                g = Color.green(pixel);
-                b = Color.blue(pixel);
+        // for loop to go through each pixel
+        int a,r,g,b, pixel, Y, Cb, Cr;
+        for(int i = 0; i < pixels.length; i++){
+            // gets current pixel then gets ARGB values
+            pixel = pixels[i];
+            a = Color.alpha(pixel);
+            r = Color.red(pixel);
+            g = Color.green(pixel);
+            b = Color.blue(pixel);
 
-                // firt convert values from RGB to YCbCr
-                // then to create the grey scale of Y, set both other Cb Cr values to same as Y
-                // then use color.argb(y,Cb,Cr)
-                // USE FORMULA from slides to ensure it works correctly
-                Y = (int) (0.299 * r + 0.587 * g + 0.114 * b);
-                Cb =  (int) (128-0.169 *   r-0.331   * g + 0.500 * b);
-                Cr =  (int) (128+0.500 *   r - 0.419 * g - 0.081 * b);
+            // calculates the Y value
+            Y = (int) (0.299 * r + 0.587 * g + 0.114 * b);
 
-                //r = 0;
-                g = 0;
-                b = 0;
+            // sets other values to same as Y value
+            Cb = Y;
+            Cr = Y;
 
+            // calculates new pixel value and assigns it to current pixel
+            pixels[i] = Color.argb(a,Y,Cb,Cr);
 
-
-                //Y = (66 * r + 129 * g + 25 * b + 128) >> 8 + 16;
-                //u = (-38 * r - 74 * g + 112 * b + 128) >> 8 + 128;
-                //v = (112 * r - 94 * g - 18 * b + 128) >> 8 + 128;
-
-                int newPixel = (Y<<24) | (g<<16) | (b<<8);
-
-                bitmapY.setPixel(x,y,newPixel);
-            }
         }
 
+        // sets pixels to bitmap then sets the image view
+        bitmapY.setPixels(pixels, 0, width, 0, 0, width, height);
         imageLeft.setImageBitmap(bitmapY);
+
+    }
+
+    private void setMiddleYCbCr() {
+
+        // checks if bitmap already exists
+        if(bitmapCb != null){
+            imageMiddle.setImageBitmap(bitmapCb);
+            return;
+        }
+
+        // copies scaled img to bitmapCb
+        bitmapCb = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+        int width = scaledImgLeft.getWidth();
+        int height = scaledImgLeft.getHeight();
+
+        // creates array to hold pixel values uses getPixels to copy values to the array.
+        int[] pixels = new int[width*height];
+        scaledImgLeft.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        // for loop to go through each pixel
+        int a,r,g,b, pixel, Y, Cb, Cr;
+        for(int i = 0; i < pixels.length; i++){
+            // gets current pixel then gets ARGB values
+            pixel = pixels[i];
+            a = Color.alpha(pixel);
+            r = Color.red(pixel);
+            g = Color.green(pixel);
+            b = Color.blue(pixel);
+
+            // calculates the Cb value
+            Cb =  (int) (128-0.169 *   r-0.331   * g + 0.500 * b); // + 128 offset not needed
+
+            // sets other values to same as Cb value
+            Y = Cb;
+            Cr = Cb;
+
+            // calculates new pixel value and assigns it to current pixel
+            pixels[i] = Color.argb(a,Y,Cb,Cr);
+
+        }
+
+        // sets pixels to bitmap then sets the image view
+        bitmapCb.setPixels(pixels, 0, width, 0, 0, width, height);
+        imageMiddle.setImageBitmap(bitmapCb);
+
+    }
+
+    private void setRightYCbCr(){
+
+        // checks if bitmap already exists
+        if(bitmapCr != null){
+            imageRight.setImageBitmap(bitmapCr);
+            return;
+        }
+
+        // copies scaled img to bitmapCr
+        bitmapCr = scaledImgLeft.copy(Bitmap.Config.ARGB_8888, true);
+        int width = scaledImgLeft.getWidth();
+        int height = scaledImgLeft.getHeight();
+
+        // creates array to hold pixel values uses getPixels to copy values to the array.
+        int[] pixels = new int[width*height];
+        scaledImgLeft.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        // for loop to go through each pixel
+        int a,r,g,b, pixel, Y, Cb, Cr;
+        for(int i = 0; i < pixels.length; i++){
+            // gets current pixel then gets ARGB values
+            pixel = pixels[i];
+            a = Color.alpha(pixel);
+            r = Color.red(pixel);
+            g = Color.green(pixel);
+            b = Color.blue(pixel);
+
+            // calculates the Cr value
+            Cr =  (int) (128+0.500 *   r - 0.419 * g - 0.081 * b);// + 128 offset not needed
+
+            // sets other values to same as Cr value
+            Y = Cr;
+            Cb = Cr;
+
+            // calculates new pixel value and assigns it to current pixel
+            pixels[i] = Color.argb(a,Y,Cb,Cr);
+
+        }
+
+        // sets pixels to bitmap then sets the image view
+        bitmapCr.setPixels(pixels, 0, width, 0, 0, width, height);
+        imageRight.setImageBitmap(bitmapCr);
+
     }
 }
