@@ -5,24 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.YuvImage;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    // variables to hold views/bitmaps
     ImageView imageLeft, imageMiddle, imageRight;
-    RadioButton leftRGBRadio, leftYCBRadio, leftrightRadio, anaglyphRadio;
     RadioGroup radioGroup;
     LinearLayout linearImageView;
     Bitmap bitmapLeftImg, bitmapRightImg, scaledImgLeft, scaledImgRight;
@@ -35,42 +27,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //leftRGBRadio = findViewById(R.id.leftRGBRadioButton);
-        //leftYCBRadio = findViewById(R.id.leftYCbCrRadioButton);
-        //leftrightRadio = findViewById(R.id.leftrightRadioButton);
-        //anaglyphRadio = findViewById(R.id.anaglyphRadioButton);
-
-
+        // assigns views to variables using id's
         linearImageView = findViewById(R.id.imageLinearLayout);
-
-
         imageLeft = findViewById(R.id.imageViewLeft);
         imageMiddle = findViewById(R.id.imageViewMiddle);
         imageRight = findViewById(R.id.imageViewRight);
-
         radioGroup = findViewById(R.id.imageRadioGroup);
 
         scaleImage(); // calls scale image to scale down left and right images on create
 
+        // sets radio group listener
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch(checkedId){
                     case R.id.leftRGBRadioButton:
-                        Toast.makeText(getApplicationContext(), "leftRGBRadio", Toast.LENGTH_LONG).show();
                         setRGB();
                         return;
                     case R.id.leftYCbCrRadioButton:
                         setYCbCr();
-                        Toast.makeText(getApplicationContext(), "leftYCbRadio", Toast.LENGTH_LONG).show();
                         return;
                     case R.id.leftrightRadioButton:
                         setLeftRight();
-                        Toast.makeText(getApplicationContext(), "leftrightRadio", Toast.LENGTH_LONG).show();
                         return;
                     case R.id.anaglyphRadioButton:
                         setAnaglyph();
-                        Toast.makeText(getApplicationContext(), "anaglyphRadio", Toast.LENGTH_LONG).show();
                         return;
                 }
             }
@@ -117,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+    // method used to set left/middle/right images to YCbCr
     private void setYCbCr(){
 
         // makes image views visible and changes scale type to fit correctly
@@ -133,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         setRightYCbCr();
     }
 
-
+    // method used to set left/right images
     private void setLeftRight(){
         // hides middle image view and sets left and right images
         imageMiddle.setVisibility(View.GONE);
@@ -144,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // method used to generate anaglyph image
     private void setAnaglyph(){
 
 
@@ -207,8 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
+    // method used to set left image to R value of left image
     private void setLeftRGB(){
 
         // checks if bitmap has already been generated so it doesnt remake it
@@ -251,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // method used to set middle image to G value of left image
     private void setMiddleRGB(){
 
         // checks if bitmap has already been generated so it doesnt remake it
@@ -292,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // method used to set right image to B value of left image
     private void setRightRGB() {
 
         // checks if bitmap has already been generated so it doesnt remake it
@@ -332,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // method used to set left image to Y value of left image using YCbCr
     private void setLeftYCbCr() {
 
         // checks if bitmap already exists
@@ -377,6 +361,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // method used to set middle image to Cb value of left image using YCbCr
     private void setMiddleYCbCr() {
 
         // checks if bitmap already exists
@@ -422,6 +407,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // method used to set right image to Cr value of left image using YCbCr
     private void setRightYCbCr(){
 
         // checks if bitmap already exists
