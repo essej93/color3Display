@@ -43,16 +43,16 @@ public class MainActivity extends AppCompatActivity {
                 switch(checkedId){
                     case R.id.leftRGBRadioButton:
                         setRGB();
-                        return;
+                        break;
                     case R.id.leftYCbCrRadioButton:
                         setYCbCr();
-                        return;
+                        break;
                     case R.id.leftrightRadioButton:
                         setLeftRight();
-                        return;
+                        break;
                     case R.id.anaglyphRadioButton:
                         setAnaglyph();
-                        return;
+                        break;
                 }
             }
         });
